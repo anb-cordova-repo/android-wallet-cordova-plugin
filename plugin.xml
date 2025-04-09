@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='utf-8'?>
+<plugin id="android-wallet-cordova-plugin" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+	<name>ApexOEMProvisioningSDK</name>
+	<js-module name="SamsungProv" src="www/samsungProvisioning.js">
+		<clobbers target="cordova.plugins.SamsungProv"/>
+	</js-module>
+	<js-module name="GoogleProv" src="www/googleProvisioning.js">
+		<clobbers target="cordova.plugins.GoogleProv" />
+	</js-module>
+	<asset src="www/samsungProvisioning.js" target="js/samsungProvisioning.js"/>
+	<asset src="www/googleProvisioning.js" target="js/googleProvisioning.js"/>
+	<engines>
+		<engine name="cordova" version=">=3.4.0"/>
+		
+	</engines>
+	<platform name="android">
+		<config-file target="config.xml" parent="/*">
+			<feature name="SamsungProv">
+				<param name="android-package" value="com.emcrey.provision.SamsungProvisioning"/>
+				<param name="onload" value="true"/>
+			</feature>
+			<feature name="GoogleProv">
+				<param name="android-package" value="com.emcrey.provision.GoogleProvisioning" />
+				<param name="onload" value="true" />
+			</feature>
+		</config-file>
+		<source-file src="src/android/com/emcrey/provision/SamsungProvisioning.java" target-dir="src/com/emcrey/provision"/>
+		<source-file src="src/android/com/emcrey/provision/GoogleProvisioning.java" target-dir="src/com/emcrey/provision"/>
+		<framework src="src/android/apex_oem_provisioning_sdk.gradle" custom="true" type="gradleReference"/>
+		<lib-file src="src/android/apex_oem_provisioning_sdk.aar"/>
+	</platform>
+</plugin>

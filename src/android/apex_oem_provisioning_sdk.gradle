@@ -1,0 +1,17 @@
+
+
+dependencies {
+    implementation(files("libs/apex_oem_provisioning_sdk.aar"))
+    implementation("com.google.code.gson:gson:2.10.1")
+    implementation("com.google.android.gms:play-services-base:18.1.0")
+}
+
+android {
+    defaultConfig {
+        buildConfigField("String", "gradle_server_id", "\"7c840709b99447699fd5db\"")//to be replaced with your own serverId
+    }
+    packagingOptions {
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE'
+    }
+}
