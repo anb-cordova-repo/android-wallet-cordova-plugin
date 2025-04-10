@@ -32,10 +32,9 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 public class GoogleProvisioning extends CordovaPlugin {
-    private CallbackContext callbackContext, dataChangeCallbackContext;
+    private CallbackContext dataChangeCallbackContext;
     IGoogleProvSDK iGoogleProvSDK;
     private final Gson gson = new Gson();
-
 
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
         super.initialize(cordova, webView);
@@ -49,76 +48,59 @@ public class GoogleProvisioning extends CordovaPlugin {
         });
     }
 
-
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
-        this.callbackContext = callbackContext;
-        if (action.equals("getActiveWalletId")) {
-            this.getActiveWalletId();
-            return true;
-        }
-        if (action.equals("checkEligibility")) {
-            this.checkEligibility();
-            return true;
-        }
-        if (action.equals("getStableHardwareId")) {
-            this.getStableHardwareId();
-            return true;
-        }
-        if (action.equals("registerDataChangedListener")) {
-            dataChangeCallbackContext = callbackContext;
-            PluginResult r = new PluginResult(PluginResult.Status.NO_RESULT);
-            r.setKeepCallback(true);
-            dataChangeCallbackContext.sendPluginResult(r);
-            return true;
-        }
-        if (action.equals("getEnvironment")) {
-            this.getEnvironment();
-            return true;
-        }
-        if (action.equals("pushCardTokenize")) {
-            this.pushCardTokenize(args.getString(0), CardNetwork.valueOf(args.getString(1)), TokenProvider.valueOf(args.getString(2)),
-                    args.getString(3), args.getString(4), args.getString(5));
-            return true;
-        }
-        if (action.equals("pushCobadgeCardTokenize")) {
-            this.pushCobadgeCardTokenize(args.getString(0), CardNetwork.valueOf(args.getString(1)), TokenProvider.valueOf(args.getString(2)),
-                    args.getString(3), CardNetwork.valueOf(args.getString(4)), TokenProvider.valueOf(args.getString(5)),
-                    args.getString(6), args.getString(7), args.getString(8));
-            return true;
-        }
-        if (action.equals("viewCardToken")) {
-            this.viewCardToken(args.getString(0), TokenProvider.valueOf(args.getString(1)));
-            return true;
-        }
-        if (action.equals("isCardTokenized")) {
-            this.isCardTokenized(args.getString(0), CardNetwork.valueOf(args.getString(1)), TokenProvider.valueOf(args.getString(2)));
-            return true;
-        }
-        if (action.equals("getCardTokensList")) {
-            this.getCardTokensList();
-            return true;
-        }
-        if (action.equals("getCardTokenStatus")) {
-            this.getCardTokenStatus(args.getString(0), TokenProvider.valueOf(args.getString(1)));
-            return true;
-        }
-        if (action.equals("createCardTokenizeRequest")) {
-            this.createCardTokenizeRequest(CardNetwork.valueOf(args.getString(0)), TokenProvider.valueOf(args.getString(1)), args.getString(2), args.getString(3), args.getString(4));
-            return true;
-        }
-        if (action.equals("createCobadgeCardTokenizeRequest")) {
-            this.createCobadgeCardTokenizeRequest(CardNetwork.valueOf(args.getString(0)), TokenProvider.valueOf(args.getString(1)), CardNetwork.valueOf(args.getString(2)), TokenProvider.valueOf(args.getString(3)), args.getString(4), args.getString(5), args.getString(6));
-            return true;
-        }
-        if (action.equals("pushTokenizeResponse")) {
-            this.pushTokenizeResponse(args.getString(0));
-            return true;
+        switch (action) {
+            case "getActiveWalletId":
+                this.getActiveWalletId(callbackContext);
+                return true;
+            case "checkEligibility":
+                this.checkEligibility(callbackContext);
+                return true;
+            case "getStableHardwareId":
+                this.getStableHardwareId(callbackContext);
+                return true;
+            case "registerDataChangedListener":
+                dataChangeCallbackContext = callbackContext;
+                PluginResult r = new PluginResult(PluginResult.Status.NO_RESULT);
+                r.setKeepCallback(true);
+                dataChangeCallbackContext.sendPluginResult(r);
+                return true;
+            case "getEnvironment":
+                this.getEnvironment(callbackContext);
+                return true;
+            case "pushCardTokenize":
+                this.pushCardTokenize(args, callbackContext);
+                return true;
+            case "pushCobadgeCardTokenize":
+                this.pushCobadgeCardTokenize(args, callbackContext);
+                return true;
+            case "viewCardToken":
+                this.viewCardToken(args, callbackContext);
+                return true;
+            case "isCardTokenized":
+                this.isCardTokenized(args, callbackContext);
+                return true;
+            case "getCardTokensList":
+                this.getCardTokensList(callbackContext);
+                return true;
+            case "getCardTokenStatus":
+                this.getCardTokenStatus(args, callbackContext);
+                return true;
+            case "createCardTokenizeRequest":
+                this.createCardTokenizeRequest(args, callbackContext);
+                return true;
+            case "createCobadgeCardTokenizeRequest":
+                this.createCobadgeCardTokenizeRequest(args, callbackContext);
+                return true;
+            case "pushTokenizeResponse":
+                this.pushTokenizeResponse(args, callbackContext);
+                return true;
         }
         return false;
     }
 
-    public void checkEligibility() {
+    public void checkEligibility(CallbackContext callbackContext) {
         iGoogleProvSDK.checkEligibility(new ResultValueListener<Boolean>() {
             @Override
             public void onSuccess(Boolean available) {
@@ -147,7 +129,7 @@ public class GoogleProvisioning extends CordovaPlugin {
         });
     }
 
-    public void getActiveWalletId() {
+    public void getActiveWalletId(CallbackContext callbackContext) {
         iGoogleProvSDK.getActiveWalletId(new ResultValueListener<String>() {
             @Override
             public void onSuccess(String activeWalletId) {
@@ -176,7 +158,7 @@ public class GoogleProvisioning extends CordovaPlugin {
         });
     }
 
-    public void getStableHardwareId() {
+    public void getStableHardwareId(CallbackContext callbackContext) {
         iGoogleProvSDK.getStableHardwareId(new ResultValueListener<String>() {
             @Override
             public void onSuccess(String stableHardwareId) {
@@ -205,7 +187,7 @@ public class GoogleProvisioning extends CordovaPlugin {
         });
     }
 
-    public void getEnvironment() {
+    public void getEnvironment(CallbackContext callbackContext) {
         iGoogleProvSDK.getEnvironment(new ResultValueListener<String>() {
             @Override
             public void onSuccess(String environment) {
@@ -234,14 +216,18 @@ public class GoogleProvisioning extends CordovaPlugin {
         });
     }
 
-    public void pushCardTokenize(String payloadBase64, CardNetwork network, TokenProvider provider,
-                                 String googleOPCPayload, String displayName, String last4Pan) {
+    public void pushCardTokenize(JSONArray args, CallbackContext callbackContext) throws JSONException {
+        String payloadBase64 = args.getString(0);
+        CardNetwork network = CardNetwork.valueOf(args.getString(1));
+        TokenProvider provider = TokenProvider.valueOf(args.getString(2));
+        String googleOPCPayload = args.getString(3);
+        String displayName = args.getString(4);
+        String last4Pan = args.getString(5);
+
         iGoogleProvSDK.pushCardTokenize(payloadBase64, network, provider, googleOPCPayload, displayName, last4Pan,
                 new TokenizeListener() {
                     @Override
                     public void onComplete(TokenizeResult tokenizeResult) {
-                        Type listType = new TypeToken<TokenizeResult>() {
-                        }.getType();
                         JSONObject object = new JSONObject();
                         try {
                             object.put("TokenizeResult", tokenizeResult);
@@ -266,10 +252,17 @@ public class GoogleProvisioning extends CordovaPlugin {
                 });
     }
 
+    public void pushCobadgeCardTokenize(JSONArray args, CallbackContext callbackContext) throws JSONException {
+        String primaryPayloadBase64 = args.getString(0);
+        CardNetwork primaryNetwork = CardNetwork.valueOf(args.getString(1));
+        TokenProvider primaryProvider = TokenProvider.valueOf(args.getString(2));
+        String auxiliaryPayloadBase64 = args.getString(3);
+        CardNetwork auxiliaryNetwork = CardNetwork.valueOf(args.getString(4));
+        TokenProvider auxiliaryProvider = TokenProvider.valueOf(args.getString(5));
+        String googleOPCPayload = args.getString(6);
+        String displayName = args.getString(7);
+        String last4Pan = args.getString(8);
 
-    public void pushCobadgeCardTokenize(String primaryPayloadBase64, CardNetwork primaryNetwork, TokenProvider primaryProvider,
-                                        String auxiliaryPayloadBase64, CardNetwork auxiliaryNetwork, TokenProvider auxiliaryProvider,
-                                        String googleOPCPayload, String displayName, String last4Pan) {
         iGoogleProvSDK.pushCobadgeCardTokenize(primaryPayloadBase64, primaryNetwork, primaryProvider,
                 auxiliaryPayloadBase64, auxiliaryNetwork, auxiliaryProvider, googleOPCPayload, displayName, last4Pan,
                 new TokenizeListener() {
@@ -277,7 +270,7 @@ public class GoogleProvisioning extends CordovaPlugin {
                     public void onComplete(TokenizeResult tokenizeResult) {
                         JSONObject object = new JSONObject();
                         try {
-                            object.put("TokenizeResult", gson.toJson(tokenizeResult));
+                            object.put("TokenizeResult", tokenizeResult);
                         } catch (JSONException e) {
                             throw new RuntimeException(e);
                         }
@@ -299,7 +292,10 @@ public class GoogleProvisioning extends CordovaPlugin {
                 });
     }
 
-    public void viewCardToken(String issuerTokenId, TokenProvider provider) {
+    public void viewCardToken(JSONArray args, CallbackContext callbackContext) throws JSONException {
+        String issuerTokenId = args.getString(0);
+        TokenProvider provider = TokenProvider.valueOf(args.getString(1));
+
         iGoogleProvSDK.viewCardToken(issuerTokenId, provider, new ResultValueListener<Boolean>() {
             @Override
             public void onSuccess(Boolean success) {
@@ -327,7 +323,11 @@ public class GoogleProvisioning extends CordovaPlugin {
         });
     }
 
-    public void isCardTokenized(String last4Pan, CardNetwork network, TokenProvider provider) {
+    public void isCardTokenized(JSONArray args, CallbackContext callbackContext) throws JSONException {
+        String last4Pan = args.getString(0);
+        CardNetwork network = CardNetwork.valueOf(args.getString(1));
+        TokenProvider provider = TokenProvider.valueOf(args.getString(2));
+
         iGoogleProvSDK.isCardTokenized(last4Pan, network, provider, new ResultValueListener<Boolean>() {
             @Override
             public void onSuccess(Boolean isCardTokenized) {
@@ -355,7 +355,7 @@ public class GoogleProvisioning extends CordovaPlugin {
         });
     }
 
-    public void getCardTokensList() {
+    public void getCardTokensList(CallbackContext callbackContext) {
         iGoogleProvSDK.getCardTokensList(new ResultValueListener<List<CardToken>>() {
             @Override
             public void onSuccess(List<CardToken> cards) {
@@ -386,7 +386,10 @@ public class GoogleProvisioning extends CordovaPlugin {
         });
     }
 
-    public void getCardTokenStatus(String issuerTokenId, TokenProvider provider) {
+    public void getCardTokenStatus(JSONArray args, CallbackContext callbackContext) throws JSONException {
+        String issuerTokenId = args.getString(0);
+        TokenProvider provider = TokenProvider.valueOf(args.getString(1));
+
         iGoogleProvSDK.getCardTokenStatus(issuerTokenId, provider, new TokenStatusListener() {
             @Override
             public void onSuccess(TokenStatus tokenStatus, Boolean isSelected) {
@@ -415,9 +418,13 @@ public class GoogleProvisioning extends CordovaPlugin {
         });
     }
 
-
-    public void createCardTokenizeRequest(CardNetwork network, TokenProvider provider,
-                                          String displayName, String last4Pan, String address) {
+    //    (CardNetwork.valueOf(args.getString(0)), TokenProvider.valueOf(args.getString(1)), args.getString(2), args.getString(3), args.getString(4));
+    public void createCardTokenizeRequest(JSONArray args, CallbackContext callbackContext) throws JSONException {
+        CardNetwork network = CardNetwork.valueOf(args.getString(0));
+        TokenProvider provider = TokenProvider.valueOf(args.getString(1));
+        String displayName = args.getString(2);
+        String last4Pan = args.getString(3);
+        String address = args.getString(4);
         iGoogleProvSDK.createCardTokenizeRequest(network, provider, displayName, last4Pan, parseAddress(address),
                 new ResultValueListener<PaymentRequest>() {
 
@@ -447,10 +454,20 @@ public class GoogleProvisioning extends CordovaPlugin {
                 });
     }
 
-    public void createCobadgeCardTokenizeRequest(CardNetwork primaryNetowrk, TokenProvider primaryProvider,
-                                                 CardNetwork auxNetowrk, TokenProvider auxProvider,
-                                                 String displayName, String last4Pan, String address) {
-        iGoogleProvSDK.createCobadgeCardTokenizeRequest(primaryNetowrk, primaryProvider, auxNetowrk, auxProvider, displayName, last4Pan, parseAddress(address), false,
+    //    (CardNetwork.valueOf(args.getString(0)), TokenProvider.valueOf(args.getString(1)), CardNetwork.valueOf(args.getString(2)), TokenProvider.valueOf(args.getString(3)), args.getString(4), args.getString(5), args.getString(6));
+//CardNetwork primaryNetowrk, TokenProvider primaryProvider,
+//    CardNetwork auxNetowrk, TokenProvider auxProvider,
+//    String displayName, String last4Pan, String address
+    public void createCobadgeCardTokenizeRequest(JSONArray args, CallbackContext callbackContext) throws JSONException {
+        CardNetwork primaryNetwork = CardNetwork.valueOf(args.getString(0));
+        TokenProvider primaryProvider = TokenProvider.valueOf(args.getString(1));
+        CardNetwork auxNetwork = CardNetwork.valueOf(args.getString(2));
+        TokenProvider auxProvider = TokenProvider.valueOf(args.getString(3));
+        String displayName = args.getString(4);
+        String last4Pan = args.getString(5);
+        String address = args.getString(6);
+
+        iGoogleProvSDK.createCobadgeCardTokenizeRequest(primaryNetwork, primaryProvider, auxNetwork, auxProvider, displayName, last4Pan, parseAddress(address), false,
                 new ResultValueListener<PaymentRequest>() {
 
                     @Override
@@ -479,7 +496,9 @@ public class GoogleProvisioning extends CordovaPlugin {
                 });
     }
 
-    public void pushTokenizeResponse(String paymentResponse) {
+    public void pushTokenizeResponse(JSONArray args, CallbackContext callbackContext) throws JSONException {
+        String paymentResponse = args.getString(0);
+
         PaymentResponse response = parsePaymentResponse(paymentResponse);
         iGoogleProvSDK.pushTokenizeResponse(response,
                 new TokenizeListener() {
