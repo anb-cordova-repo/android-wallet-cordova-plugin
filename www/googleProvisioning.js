@@ -1,5 +1,5 @@
 var exec = require('cordova/exec');
-var PLUGIN_NAME = PLUGIN_NAME;
+var PLUGIN_NAME = "GoogleProv";
 
 exports.checkEligibility = function (success, error) {
     exec(success, error, PLUGIN_NAME, 'checkEligibility');
